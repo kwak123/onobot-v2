@@ -1,5 +1,7 @@
+import { BotConfig } from './types';
+
 // Bot configuration
-module.exports = {
+const config: BotConfig = {
     // Command prefix (can be overridden by BOT_PREFIX env var)
     prefix: process.env.BOT_PREFIX || '!',
     
@@ -45,3 +47,5 @@ module.exports = {
         logErrors: true
     }
 };
+
+export default config;

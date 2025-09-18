@@ -1,21 +1,25 @@
 # onobot-v2
 
-A Discord bot designed to monitor specific channels for message patterns and respond to commands.
+A Discord bot designed to monitor specific channels for message patterns and respond to commands. Built with TypeScript for type safety and better development experience.
 
 ## Features
 
 - **Pattern Matching**: Monitor messages for specific regex patterns
 - **Commands**: Built-in command system with prefix support
+- **Slash Commands**: Modern Discord slash commands with stock price functionality
 - **Channel Filtering**: Optionally restrict bot to specific channels
 - **Environment Configuration**: Secure configuration via environment variables
 - **Error Handling**: Comprehensive error handling and logging
+- **TypeScript**: Full TypeScript support for type safety and better development experience
 
 ## Setup
 
 ### Prerequisites
 
 - Node.js 16.0.0 or higher
+- TypeScript knowledge (optional but recommended)
 - A Discord application and bot token
+- Alpha Vantage API key (for stock price functionality)
 
 ### Installation
 
@@ -64,23 +68,56 @@ A Discord bot designed to monitor specific channels for message patterns and res
 
 ### Running the Bot
 
-Development mode:
+Development mode (with TypeScript compilation):
 
 ```bash
 npm run dev
 ```
 
-Production mode:
+Production mode (builds and runs):
 
 ```bash
 npm start
 ```
 
+Build only:
+
+```bash
+npm run build
+```
+
+Watch mode (auto-recompile on changes):
+
+```bash
+npm run watch
+```
+
+### Setting Up Slash Commands
+
+Before using slash commands, you need to deploy them to Discord:
+
+1. Add your Discord application's Client ID to your `.env` file:
+
+   ```
+   CLIENT_ID=your_discord_application_client_id_here
+   ```
+
+2. Deploy the slash commands:
+
+   ```bash
+   npm run deploy
+   ```
+
+3. For development, you can deploy to a specific guild for faster updates:
+   ```
+   GUILD_ID=your_test_server_guild_id_here
+   ```
+
 ### Configuration
 
 #### Message Patterns
 
-Edit the `messagePatterns` array in `index.js` to add regex patterns:
+Edit the `messagePatterns` array in `src/config.ts` to add regex patterns:
 
 ```javascript
 const messagePatterns = [
@@ -92,7 +129,7 @@ const messagePatterns = [
 
 #### Channel Filtering
 
-Edit the `allowedChannels` array in `index.js` to restrict bot to specific channels:
+Edit the `allowedChannels` array in `src/config.ts` to restrict bot to specific channels:
 
 ```javascript
 const allowedChannels = [
@@ -105,13 +142,19 @@ Leave empty to allow bot in all channels.
 
 ### Built-in Commands
 
+#### Text Commands (Prefix: !)
+
 - `!ping` - Test bot responsiveness
 - `!help` - Show available commands
 - `!info` - Display bot and server information
 
+#### Slash Commands
+
+- `/onoprice tickers:<symbols>` - Get stock prices for comma-separated ticker symbols (e.g., AAPL,MSFT,GOOGL)
+
 ### Adding Custom Commands
 
-Add new commands in the `handleCommand` function in `index.js`:
+Add new commands in the `handleCommand` function in `src/index.ts`:
 
 ```javascript
 case 'newcommand':
@@ -136,14 +179,51 @@ async function checkMessagePatterns(message) {
 }
 ```
 
+## TypeScript Development
+
+This project is built with TypeScript for better type safety and development experience.
+
+### Project Structure
+
+```
+src/
+├── index.ts              # Main bot entry point
+├── config.ts             # Bot configuration
+├── commands.ts           # Slash command definitions
+├── alphavantage.ts       # Alpha Vantage API wrapper
+├── deploy-commands.ts    # Command deployment script
+├── types.ts              # TypeScript type definitions
+└── discord-extensions.d.ts # Discord.js type extensions
+```
+
+### Type Safety Features
+
+- **Strict TypeScript configuration** with comprehensive type checking
+- **Custom interfaces** for bot configuration, API responses, and commands
+- **Discord.js type extensions** for enhanced client functionality
+- **Environment variable validation** at startup
+- **Compile-time error detection** for better code quality
+
+### Development Workflow
+
+1. **Make changes** to TypeScript files in the `src/` directory
+2. **Use watch mode** for automatic recompilation: `npm run watch`
+3. **Run in development** with `npm run dev` (uses ts-node)
+4. **Build for production** with `npm run build`
+5. **Deploy commands** with `npm run deploy`
+
 ## Environment Variables
 
-| Variable        | Description                       | Required | Default     |
-| --------------- | --------------------------------- | -------- | ----------- |
-| `DISCORD_TOKEN` | Your Discord bot token            | Yes      | -           |
-| `NODE_ENV`      | Environment mode                  | No       | development |
-| `BOT_PREFIX`    | Command prefix                    | No       | !           |
-| `GUILD_ID`      | Specific guild ID for development | No       | -           |
+| Variable           | Description                       | Required | Default     |
+| ------------------ | --------------------------------- | -------- | ----------- |
+| `DISCORD_TOKEN`    | Your Discord bot token            | Yes      | -           |
+| `CLIENT_ID`        | Your Discord application ID       | Yes\*    | -           |
+| `ALPHAVANTAGE_KEY` | Your Alpha Vantage API key        | Yes\*    | -           |
+| `NODE_ENV`         | Environment mode                  | No       | development |
+| `BOT_PREFIX`       | Command prefix                    | No       | !           |
+| `GUILD_ID`         | Specific guild ID for development | No       | -           |
+
+\*Required for slash commands and stock price functionality
 
 ## Contributing
 
