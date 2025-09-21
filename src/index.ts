@@ -1,4 +1,4 @@
-import "dotenv/config";
+import 'dotenv/config';
 import {
   Client,
   GatewayIntentBits,
@@ -7,13 +7,13 @@ import {
   Message,
   ChatInputCommandInteraction,
   TextBasedChannel,
-} from "discord.js";
-import config from "./config";
-import commands from "./commands";
-import { SlashCommand, BotConfig } from "./types";
+} from 'discord.js';
+import config from './config';
+import commands from './commands';
+import { SlashCommand, BotConfig } from './types';
 
 // Extend the Discord.js Client interface
-declare module "discord.js" {
+declare module 'discord.js' {
   interface Client {
     commands: Collection<string, SlashCommand>;
   }
@@ -21,30 +21,28 @@ declare module "discord.js" {
 
 // Helper function to get channel name safely
 function getChannelName(channel: TextBasedChannel | null): string {
-  if (!channel) return "Unknown";
-  if ("name" in channel) return channel.name || "Unknown";
-  return "DM";
+  if (!channel) return 'Unknown';
+  if ('name' in channel) return channel.name || 'Unknown';
+  return 'DM';
 }
 
 // Validate required environment variables
 if (!process.env.DISCORD_TOKEN) {
-  console.error("❌ DISCORD_TOKEN environment variable is required");
+  console.error('❌ DISCORD_TOKEN environment variable is required');
   process.exit(1);
 }
 
 // Create a new client instance
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.Guilds, // Required for slash commands
+    GatewayIntentBits.GuildMessages, // Required to receive messages
+    GatewayIntentBits.MessageContent, // Required to read message content (PRIVILEGED)
   ],
 });
 
 // Get configuration
-const { messagePatterns, allowedChannels, responses, logging }: BotConfig =
-  config;
+const { messagePatterns, allowedChannels, responses, logging }: BotConfig = config;
 
 // Set up slash commands
 client.commands = new Collection<string, SlashCommand>();
@@ -63,10 +61,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
   if (message.author.bot) return;
 
   // Check if bot should respond in this channel
-  if (
-    allowedChannels.length > 0 &&
-    !allowedChannels.includes(message.channel.id)
-  ) {
+  if (allowedChannels.length > 0 && !allowedChannels.includes(message.channel.id)) {
     return;
   }
 
@@ -96,18 +91,16 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (logging.logCommands) {
       console.log(
-        `Slash command executed: /${interaction.commandName} by ${
-          interaction.user.tag
-        } in ${interaction.guild?.name || "DM"}#${getChannelName(
-          interaction.channel
-        )}`
+        `Slash command executed: /${interaction.commandName} by ${interaction.user.tag} in ${
+          interaction.guild?.name || 'DM'
+        }#${getChannelName(interaction.channel)}`,
       );
     }
   } catch (error) {
-    console.error("Error executing slash command:", error);
+    console.error('Error executing slash command:', error);
 
     const errorMessage = {
-      content: "There was an error while executing this command!",
+      content: 'There was an error while executing this command!',
       ephemeral: true,
     };
 
@@ -128,33 +121,29 @@ async function handleCommand(message: Message): Promise<void> {
 
   if (logging.logCommands) {
     console.log(
-      `Command executed: ${config.prefix}${command} by ${
-        message.author.tag
-      } in ${message.guild?.name || "DM"}#${getChannelName(message.channel)}`
+      `Command executed: ${config.prefix}${command} by ${message.author.tag} in ${
+        message.guild?.name || 'DM'
+      }#${getChannelName(message.channel)}`,
     );
   }
 
   switch (command) {
-    case "ping":
+    case 'ping':
       await message.reply(responses.commands.ping);
       break;
 
-    case "help":
+    case 'help':
       await message.reply(responses.commands.help);
       break;
 
-    case "info":
+    case 'info':
       await message.reply(
-        `Bot: ${client.user?.tag}\nServer: ${
-          message.guild?.name || "DM"
-        }\nChannel: ${getChannelName(message.channel)}`
+        `Bot: ${client.user?.tag}\nServer: ${message.guild?.name || 'DM'}\nChannel: ${getChannelName(message.channel)}`,
       );
       break;
 
     default:
-      await message.reply(
-        responses.commands.unknownCommand.replace("{command}", command)
-      );
+      await message.reply(responses.commands.unknownCommand.replace('{command}', command));
   }
 }
 
@@ -163,11 +152,7 @@ async function checkMessagePatterns(message: Message): Promise<void> {
   for (const pattern of messagePatterns) {
     if (pattern.test(message.content)) {
       if (logging.logPatternMatches) {
-        console.log(
-          `Pattern matched in ${message.guild?.name || "DM"}#${getChannelName(
-            message.channel
-          )}: ${pattern}`
-        );
+        console.log(`Pattern matched in ${message.guild?.name || 'DM'}#${getChannelName(message.channel)}: ${pattern}`);
       }
 
       // React with configured emoji
@@ -188,13 +173,13 @@ async function checkMessagePatterns(message: Message): Promise<void> {
 // Error handling
 client.on(Events.Error, (error) => {
   if (logging.logErrors) {
-    console.error("Discord client error:", error);
+    console.error('Discord client error:', error);
   }
 });
 
-process.on("unhandledRejection", (error) => {
+process.on('unhandledRejection', (error) => {
   if (logging.logErrors) {
-    console.error("Unhandled promise rejection:", error);
+    console.error('Unhandled promise rejection:', error);
   }
 });
 
